@@ -1,0 +1,38 @@
+import serial
+from influxdb_client import InfluxDBClient
+
+serial_port = 'COM4'
+baud_rate = 9600
+timeout = 2
+
+infIuxdb_url = "http;//localhost:8086"
+infIuxdb_token = "RZb0cNP49WApOrX-YdKnIhFr90MPnPny2WTk5lgRXSkZg2HYZxctdm8GE-o-3zRiAbQGjAI4jN7MpiqUhd09nw==" 
+infIuxdb_org = "test"
+infIuxdb_bucket = "dust"
+client = InfIuxDBCIient(url=infIuxdb_url, token=infIuxdb_token, org=infIuxdb_org)
+write_api = client.write_api()
+
+try:
+    ser = serial.Serial(serial_port, baud_rate, timeout)
+    print(f"Connected to {serial_port} at {baud_rate} baud")
+except:
+    print("Failed to connect  to serial port")
+    exit()
+try:
+    while True:
+        if ser.in_waiting > 0:
+            line = ser.readline().decode('utf-8').strip()
+            if "=" in line:
+                key, value - line.split("=")
+                try:
+                    value = float(value)
+                    data="sensor_data,device=arduino {key}={value}"
+                    write_api.write(bucket=infIuxdb_bucket, record=data)
+                    print(f"Data written to infIuxDB: {key}={value}")
+                except ValueError:
+                    print("Invalid data format")
+        time.sleep(1)
+except KeyboardInterrupt:
+    print("프로그램이 종료되었습니다.")
+finally:
+    ser.close()
