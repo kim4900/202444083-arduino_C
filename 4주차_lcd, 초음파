@@ -1,0 +1,52 @@
+//초음파 센서를 이용하여 초음파 거리를 lcd에 1초마다 갱신하며 나타내는 코드
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+#define TRIG 13
+#define ECHO 12
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+    Serial.begin(9600);
+
+    pinMode(TRIG, OUTPUT);
+    pinMode(ECHO, INPUT);
+
+    lcd.init();
+    lcd.backlight();
+    lcd.print("LCD init");
+    delay(2000);
+    lcd.clear();
+}
+
+void loop() {
+    long duration;
+    float distance;
+
+    // 초음파 센서에서 거리 측정
+    digitalWrite(TRIG, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TRIG, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG, LOW);
+
+    duration = pulseIn(ECHO, HIGH);
+    distance = duration / 58.2; // cm 단위로 변환
+
+    // 시리얼 모니터 출력
+    Serial.print("Distance: ");
+    Serial.print(distance);
+    Serial.println(" cm");
+
+    // LCD 출력
+    lcd.clear(); // 기존 문자 삭제
+    lcd.setCursor(0, 0); 
+    lcd.print("Distance:"); // 첫 번째 줄
+    lcd.setCursor(0, 1);
+    lcd.print(distance);
+    lcd.print(" cm"); // 두 번째 줄에 거리 표시
+
+    delay(1000); // 1초마다 갱신
+}
